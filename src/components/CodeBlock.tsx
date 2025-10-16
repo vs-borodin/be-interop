@@ -5,9 +5,12 @@ import { Highlight, themes } from "prism-react-renderer"
 interface CodeBlockProps {
     code: string;
     language?: 'tsx' | 'typescript' | 'javascript' | 'css' | 'html' | 'bash' | string;
+    highlightedLines?: number[]; // 1-based line numbers to highlight
+    wrap?: boolean; // wrap long lines to avoid horizontal scroll
+    maxHeightClass?: string; // allow controlling max height
 }
 
-export function CodeBlock({ code, language = 'typescript' }: CodeBlockProps) {
+export function CodeBlock({ code, language = 'typescript', highlightedLines = [], wrap = true, maxHeightClass }: CodeBlockProps) {
     const [copied, setCopied] = useState(false);
 
     const handleCopy = async () => {
@@ -35,22 +38,27 @@ export function CodeBlock({ code, language = 'typescript' }: CodeBlockProps) {
             </button>
 
             <Highlight
-                theme={themes.vsDark}
+                theme={themes.nightOwl}
                 code={code.trim()}
-                language="ts"
+                language={language as any}
             >
                 {({ className, style, tokens, getLineProps, getTokenProps }) => (
                     <pre
-                        className={`${className} text-gray-100 font-mono text-sm overflow-x-auto pr-12 rounded-lg`}
+                        className={`${className} text-gray-100 font-mono leading-6 text-[13px] md:text-sm ${wrap ? 'whitespace-pre-wrap break-words' : 'whitespace-pre'} ${wrap ? 'overflow-x-hidden' : 'overflow-x-auto'} pr-12 rounded-lg ${maxHeightClass ?? ''}`}
                         style={{ ...style, background: 'transparent' }}
                     >
-            {tokens.map((line, i) => (
-                <div key={i} {...getLineProps({ line, key: i })}>
-                    {line.map((token, key) => (
-                        <span key={key} {...getTokenProps({ token, key })} />
-                    ))}
-                </div>
-            ))}
+            {tokens.map((line, i) => {
+                const isHighlighted = highlightedLines.includes(i + 1);
+                const lineProps = getLineProps({ line, key: i });
+                const lineClassName = `${lineProps.className ?? ''} ${isHighlighted ? 'bg-gray-800/60 ring-1 ring-blue-500/40 -mx-6 px-6' : ''}`.trim();
+                return (
+                    <div key={i} {...lineProps} className={lineClassName}>
+                        {line.map((token, key) => (
+                            <span key={key} {...getTokenProps({ token, key })} />
+                        ))}
+                    </div>
+                );
+            })}
           </pre>
                 )}
             </Highlight>

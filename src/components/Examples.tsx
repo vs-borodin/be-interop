@@ -1,96 +1,8 @@
 import {CodeBlock} from './CodeBlock';
+import { FileCode, ListChecks, SlidersHorizontal } from 'lucide-react';
 
 export function Examples() {
-    const basicExample = `import { dataList } from '@mixin-ui/be-interop';
-import { inject } from '@angular/core';
-import { UserService } from './user.service';
-
-export class UserListComponent {
-  readonly userService = inject(UserService);
-
-  readonly users = dataList({
-    stream: params => this.userService.getUsers(params)
-  });
-
-  loadMore() {
-    this.users.paginate(prev => ({
-      ...prev,
-      skip: prev.skip + prev.take,
-    }));
-  }
-
-  filterByStatus(status: string) {
-    this.users.filter({ status });
-  }
-
-  sortByName() {
-    this.users.sort(() => [{ key: 'name', order: 'asc' }]);
-  }
-}`;
-
-    const lazyExample = `import { dataList } from '@mixin-ui/be-interop';
-
-export class ProductListComponent {
-  readonly category = input.required<string>();
-
-  readonly products = dataList.lazy({
-    stream: params => this.productService.getProducts(params),
-  });
-
-  constructor() {
-    effect(() => {
-      this.products.filter({ category: this.category() });
-    })
-  }
-}`;
-
-    const storeExample = `import { Injectable, inject, signal } from '@angular/core';
-import { dataList } from '@mixin-ui/be-interop';
-import { MeterService } from './meter.service';
-
-@Injectable()
-export class MeterStore {
-  readonly #meterService = inject(MeterService);
-
-  readonly meters = dataList.lazy({
-    stream: params => this.#meterService.getMeters(params),
-  });
-
-  readonly creating = signal(false);
-
-  createMeter(model: CreateMeterDto) {
-    this.creating.set(true);
-
-    return firstValueFrom(
-      this.#meterService.createMeter(model).pipe(
-        tap({
-          next: () => this.meters.reload(),
-          finalize: () => this.creating.set(false),
-        }),
-      ),
-    );
-  }
-
-  updateMeter(id: string, model: UpdateMeterDto) {
-    return firstValueFrom(
-      this.#meterService.updateMeter(id, model).pipe(
-        tap(() => this.meters.reload()),
-      ),
-    );
-  }
-
-  deleteMeter(id: string) {
-    return firstValueFrom(
-      this.#meterService.deleteMeter(id).pipe(
-        tap(() => this.meters.reload()),
-      ),
-    );
-  }
-}`;
-
-    const serviceExample = `import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+    const serviceExample = `
 import { DataListDto } from '@mixin-ui/be-interop';
 
 export interface User {
@@ -99,66 +11,333 @@ export interface User {
   email: string;
 }
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class UserService {
-  constructor(private http: HttpClient) {}
+  readonly #http = inject(HttpClient);
 
   getUsers(params: Record<string, any>): Observable<DataListDto<User>> {
-    return this.http.get<DataListDto<User>>('/api/users', { params });
+    return this.#http.get<DataListDto<User>>('/api/users', { params });
   }
+}`;
+
+    
+
+    const storeExample = `
+import { dataList } from '@mixin-ui/be-interop';
+import { UserService } from './user.service';
+
+@Injectable()
+export class UserStore {
+  readonly #userService = inject(UserService);
+
+  readonly users = dataList({
+    stream: params => this.#userService.getUsers(params)
+  });
+}`;
+
+    const contractExample = `export interface DataListRef<T> {
+  readonly items: Signal<readonly T[]>;
+  readonly query: Signal<DataListQuery>;
+  readonly total: Signal<number>;
+  readonly loading: Signal<boolean>;
+  readonly error: Signal<unknown>;
+  readonly filter: (updater: FilterUpdater) => void;
+  readonly sort: (updater: SorterUpdater) => void;
+  readonly paginate: (updater: PaginationUpdater) => void;
+  readonly search: (query: string) => void;
+  readonly reload: () => void;
+}`;
+
+    const componentIntegrationTsExample = `
+import { dataList } from '@mixin-ui/be-interop';
+import { ProductService } from './product.service';
+
+export class ProductListComponent {
+  readonly #productService = inject(ProductService);
+
+  readonly products = dataList({
+    stream: params => this.#productService.getProducts(params),
+  });
+}`;
+
+    const searchInputExample = `<input
+  type="text"
+  placeholder="Search products..."
+  (input)="products.search(el.value)" #el
+/>`;
+
+    const stateRenderingExample = `@if (products.loading()) {
+  <app-spinner />
+} @else if (products.error(); as error) {
+  <app-error [error]="error" />
+} @else {
+  @for (item of products.items(); track item.id) {
+    <app-product [product]="item" />
+  }
+}`;
+
+    const defaultStateExample = `
+{
+  items: [],
+  total: 0,
+  query: {
+    filter: {},
+    pagination: { take: 250, skip: 0 },
+    sorters: [],
+  },
+  error: null,
+  loading: true,
+}`;
+
+    const customStateExample = `// You can override parts of the initial state
+const users = dataList({
+  stream: params => userService.getUsers(params),
+  state: {
+    query: { pagination: { take: 50, skip: 0 } },
+    loading: false,
+  }
+});`;
+
+    const loadingTimeoutExample = `// Prevents loading flicker for fast responses (default: 250ms)
+const users = dataList({
+  stream: params => userService.getUsers(params),
+  loadingTimeout: 300,
+});`;
+
+    const searchDebounceExample = `// Debounce for search(query: string) (default: 300ms)
+const users = dataList({
+  stream: params => userService.getUsers(params),
+  searchDebounce: 400,
+});`;
+
+    const filterShapeExample = `// Filter: key-value pairs you send to backend
+// Example: show only active users from a specific team
+{
+  status: 'active',
+  teamId: '42'
+}`;
+
+    const paginationShapeExample = `// Pagination: how many items and from which offset
+{ take: 50, skip: 0 } // first page (items 0..49)
+{ take: 50, skip: 50 } // second page (items 50..99)`;
+
+    const sorterShapeExample = `// Sorters: list of sorting rules
+[
+  { key: 'name', order: 'asc' },
+  { key: 'createdAt', order: 'desc' }
+]`;
+
+    const filterUpdaterExample = `// Two ways to update filter
+// 1) Function: get previous filter and return new one
+users.filter(prev => ({ ...prev, status: 'active' }));
+
+// 2) Partial object: will be merged into current filter
+users.filter({ status: 'active' });`;
+
+    const paginationUpdaterExample = `// Two ways to update pagination
+// 1) Function: next page relative to previous values
+users.paginate(prev => ({ ...prev, skip: (prev.skip ?? 0) + prev.take }));
+
+// 2) Partial object: set absolute values
+users.paginate({ take: 100, skip: 0 });`;
+
+    const sorterUpdaterExample = `// One way to update sorters: provide a new list
+users.sort(() => [{ key: 'name', order: 'asc' }]);`;
+
+    const dataListQueryInterfaceExample = `export interface DataListQuery {
+  readonly filter: Filter;
+  readonly pagination: Pagination;
+  readonly sorters: readonly Sorter[];
 }`;
 
     return (
         <section id="examples" className="py-20 px-6">
-            <div className="max-w-6xl mx-auto">
+            <div className="max-w-4xl mx-auto">
                 <h2 className="text-4xl font-bold text-gray-900 mb-4 text-center">
-                    Usage Examples
+                    Step-by-step guide
                 </h2>
                 <p className="text-lg text-gray-600 mb-16 text-center max-w-3xl mx-auto">
-                    See how to integrate dataList in your Angular components and stores
+                    Learn how to use the dataList utility in a clear, incremental way.
                 </p>
 
-                <div className="space-y-12">
-                    <div>
-                        <h3 className="text-2xl font-semibold text-gray-900 mb-4">
-                            Basic Usage
-                        </h3>
-                        <p className="text-gray-600 mb-6">
-                            Create a data list with pagination, filtering, and sorting capabilities.
-                        </p>
-                        <CodeBlock code={basicExample} />
-                    </div>
+                <div className="relative">
+                    <div className="absolute left-6 top-0 bottom-0 w-px bg-gradient-to-b from-blue-200/50 via-blue-200/30 to-transparent"></div>
 
-                    <div>
-                        <h3 className="text-2xl font-semibold text-gray-900 mb-4">
-                            Lazy Loading
-                        </h3>
-                        <p className="text-gray-600 mb-6">
-                            Use dataList.lazy to defer the initial request until the first query change.
-                        </p>
-                        <CodeBlock code={lazyExample} />
-                    </div>
+                    <ol className="space-y-10">
+                        <li className="relative pl-16">
+                            <div className="absolute left-0 top-1.5 flex items-center justify-center w-12 h-12 rounded-full bg-white shadow ring-1 ring-blue-200">
+                                <div className="flex items-center justify-center w-9 h-9 rounded-full bg-blue-600 text-white font-semibold">1</div>
+                            </div>
+                            <div className="group rounded-2xl bg-white p-6 shadow-md hover:shadow-lg transition-shadow">
+                                <div className="flex items-center gap-3 mb-3">
+                                    <div className="p-2 rounded-lg bg-blue-50 text-blue-700">
+                                        <FileCode className="w-5 h-5" />
+                                    </div>
+                                    <h3 className="text-xl font-semibold text-gray-900">Step 1. Define a data fetching method in a service</h3>
+                                </div>
+                                <p className="text-gray-600 mb-5">
+                                    The service must return a properly typed <code>DataListDto&lt;T&gt;</code> from <code>@mixin-ui/be-interop</code>.
+                                </p>
+                                <CodeBlock code={serviceExample} />
+                            </div>
+                        </li>
 
-                    <div>
-                        <h3 className="text-2xl font-semibold text-gray-900 mb-4">
-                            Store Integration
-                        </h3>
-                        <p className="text-gray-600 mb-6">
-                            Integrate dataList with your store pattern. After mutations, simply call reload() to refresh
-                            the list.
-                        </p>
-                        <CodeBlock code={storeExample} />
-                    </div>
+                        <li className="relative pl-16">
+                            <div className="absolute left-0 top-1.5 flex items-center justify-center w-12 h-12 rounded-full bg-white shadow ring-1 ring-blue-200">
+                                <div className="flex items-center justify-center w-9 h-9 rounded-full bg-blue-600 text-white font-semibold">2</div>
+                            </div>
+                            <div className="group rounded-2xl bg-white p-6 shadow-md hover:shadow-lg transition-shadow">
+                                <div className="flex items-center gap-3 mb-3">
+                                    <div className="p-2 rounded-lg bg-blue-50 text-blue-700">
+                                        <ListChecks className="w-5 h-5" />
+                                    </div>
+                                    <h3 className="text-xl font-semibold text-gray-900">Step 2. dataList options and initial state</h3>
+                                </div>
+                                <div className="space-y-8">
+                                    <div className="rounded-xl bg-gray-50 p-4">
+                                        <div className="text-sm font-semibold text-gray-900 mb-2">stream (required)</div>
+                                        <p className="text-gray-600 mb-3">Function that returns an Observable with <code>data</code> and <code>total</code>. It must complete. Typically calls your service method.</p>
+                                        <div className="space-y-6">
+                                            <div>
+                                                <div className="inline-flex items-center gap-2 text-xs font-medium text-blue-700 bg-blue-50 px-2.5 py-1 rounded-md mb-2">Store usage</div>
+                                                <CodeBlock code={storeExample} maxHeightClass="max-h-80" />
+                                            </div>
+                                        </div>
+                                    </div>
 
-                    <div>
-                        <h3 className="text-2xl font-semibold text-gray-900 mb-4">
-                            Service Contract
-                        </h3>
-                        <p className="text-gray-600 mb-6">
-                            Your service should return DataListDto with data and total properties.
-                        </p>
-                        <CodeBlock code={serviceExample} />
-                    </div>
+                                    <div className="rounded-xl bg-gray-50 p-4">
+                                        <div className="text-sm font-semibold text-gray-900 mb-2">state (optional)</div>
+                                        <p className="text-gray-600 mb-3">Initial state of the list. You can override parts. Defaults shown below.</p>
+                                        <div className="space-y-6">
+                                        <div>
+                                                <div className="inline-flex items-center gap-2 text-xs font-medium text-blue-700 bg-blue-50 px-2.5 py-1 rounded-md mb-2">Default initial state</div>
+                                                <CodeBlock code={defaultStateExample} maxHeightClass="max-h-72" />
+                                            </div>
+                                            <div>
+                                                <div className="inline-flex items-center gap-2 text-xs font-medium text-blue-700 bg-blue-50 px-2.5 py-1 rounded-md mb-2">Custom initial state</div>
+                                                <CodeBlock code={customStateExample} maxHeightClass="max-h-72" />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="rounded-xl bg-gray-50 p-4">
+                                        <div className="text-sm font-semibold text-gray-900 mb-2">loadingTimeout (optional)</div>
+                                        <p className="text-gray-600 mb-3">Delay before <code>loading</code> becomes true after subscription. Prevents flicker on fast responses. Default: <code>250ms</code>.</p>
+                                        <CodeBlock code={loadingTimeoutExample} />
+                                    </div>
+
+                                    <div className="rounded-xl bg-gray-50 p-4">
+                                        <div className="text-sm font-semibold text-gray-900 mb-2">searchDebounce (optional)</div>
+                                        <p className="text-gray-600 mb-3">Debounce for <code>search(query)</code> method in milliseconds. Default: <code>300ms</code>.</p>
+                                        <CodeBlock code={searchDebounceExample} />
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+
+                        <li className="relative pl-16">
+                            <div className="absolute left-0 top-1.5 flex items-center justify-center w-12 h-12 rounded-full bg-white shadow ring-1 ring-blue-200">
+                                <div className="flex items-center justify-center w-9 h-9 rounded-full bg-blue-600 text-white font-semibold">3</div>
+                            </div>
+                            <div className="group rounded-2xl bg-white p-6 shadow-md hover:shadow-lg transition-shadow">
+                                <div className="flex items-center gap-3 mb-3">
+                                    <div className="p-2 rounded-lg bg-blue-50 text-blue-700">
+                                        <SlidersHorizontal className="w-5 h-5" />
+                                    </div>
+                                    <h3 className="text-xl font-semibold text-gray-900">Step 3. Understand the DataList contract, query and updaters</h3>
+                                </div>
+                                <p className="text-gray-600 mb-5">
+                                    Calling <code>dataList</code> creates a <code>DataListRef</code> with signals for state and methods to control behavior.
+                                </p>
+                                <div className="space-y-8">
+                                    <div>
+                                        <div className="inline-flex items-center gap-2 text-xs font-medium text-blue-700 bg-blue-50 px-2.5 py-1 rounded-md mb-2">DataListRef</div>
+                                        <CodeBlock code={contractExample} maxHeightClass="max-h-72" />
+                                    </div>
+                                    <div>
+                                        <p className="text-gray-600 mb-3">The <code>query</code> describes what you want from the server.</p>
+                                        <div className="mb-4">
+                                            <div className="inline-flex items-center gap-2 text-xs font-medium text-blue-700 bg-blue-50 px-2.5 py-1 rounded-md mb-2">DataListQuery</div>
+                                            <CodeBlock code={dataListQueryInterfaceExample} language="typescript" />
+                                        </div>
+                                        <p className="text-gray-600 mb-3">
+                                            It has three parts:
+                                        </p>
+                                        <div className="space-y-6">
+                                            <div>
+                                                <div className="inline-flex items-center gap-2 text-xs font-medium text-blue-700 bg-blue-50 px-2.5 py-1 rounded-md mb-2">filter</div>
+                                                <CodeBlock code={filterShapeExample} language="typescript" />
+                                            </div>
+                                            <div>
+                                                <div className="inline-flex items-center gap-2 text-xs font-medium text-blue-700 bg-blue-50 px-2.5 py-1 rounded-md mb-2">pagination</div>
+                                                <CodeBlock code={paginationShapeExample} language="typescript" />
+                                            </div>
+                                            <div>
+                                                <div className="inline-flex items-center gap-2 text-xs font-medium text-blue-700 bg-blue-50 px-2.5 py-1 rounded-md mb-2">sorters</div>
+                                                <CodeBlock code={sorterShapeExample} language="typescript" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div className="inline-flex items-center gap-2 text-xs font-medium text-blue-700 bg-blue-50 px-2.5 py-1 rounded-md mb-2">Updaters</div>
+                                        <p className="text-gray-600 mb-3">Updaters are simple inputs you pass to <code>filter</code>, <code>paginate</code> and <code>sort</code> to change the <code>query</code>. There are two styles:</p>
+                                        <ul className="list-disc pl-5 text-gray-600 mb-4">
+                                            <li><span className="text-gray-800 font-medium">Function</span>: receives the previous value and returns the next one (good for relative changes)</li>
+                                            <li><span className="text-gray-800 font-medium">Partial object</span>: merged into the current value (good for absolute changes)</li>
+                                        </ul>
+                                        <div className="space-y-6">
+                                            <div>
+                                                <div className="inline-flex items-center gap-2 text-xs font-medium text-blue-700 bg-blue-50 px-2.5 py-1 rounded-md mb-2">filter(updater)</div>
+                                                <CodeBlock code={filterUpdaterExample} language="typescript" />
+                                            </div>
+                                            <div>
+                                                <div className="inline-flex items-center gap-2 text-xs font-medium text-blue-700 bg-blue-50 px-2.5 py-1 rounded-md mb-2">paginate(updater)</div>
+                                                <CodeBlock code={paginationUpdaterExample} language="typescript" />
+                                            </div>
+                                            <div>
+                                                <div className="inline-flex items-center gap-2 text-xs font-medium text-blue-700 bg-blue-50 px-2.5 py-1 rounded-md mb-2">sort(updater)</div>
+                                                <CodeBlock code={sorterUpdaterExample} language="typescript" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+
+
+                        <li className="relative pl-16">
+                            <div className="absolute left-0 top-1.5 flex items-center justify-center w-12 h-12 rounded-full bg-white shadow ring-1 ring-blue-200">
+                                <div className="flex items-center justify-center w-9 h-9 rounded-full bg-blue-600 text-white font-semibold">4</div>
+                            </div>
+                            <div className="group rounded-2xl bg-white p-6 shadow-md hover:shadow-lg transition-shadow">
+                                <div className="flex items-center gap-3 mb-3">
+                                    <div className="p-2 rounded-lg bg-blue-50 text-blue-700">
+                                        <SlidersHorizontal className="w-5 h-5" />
+                                    </div>
+                                    <h3 className="text-xl font-semibold text-gray-900">Step 4. Component Integration</h3>
+                                </div>
+                                <p className="text-gray-600 mb-5">
+                                    Use <code>dataList</code> in a component, render <code>items()</code>, show <code>loading()</code>/<code>error()</code>, and provide search and pagination controls.
+                                </p>
+                                <div className="space-y-8">
+                                  <div>
+                                    <div className="inline-flex items-center gap-2 text-xs font-medium text-blue-700 bg-blue-50 px-2.5 py-1 rounded-md mb-2">Component (TS)</div>
+                                    <CodeBlock code={componentIntegrationTsExample} />
+                                  </div>
+                                  <div>
+                                    <p className="text-gray-600 mb-3">Search products declaratively:</p>
+                                    <div className="inline-flex items-center gap-2 text-xs font-medium text-blue-700 bg-blue-50 px-2.5 py-1 rounded-md mb-2">Search Input</div>
+                                    <CodeBlock code={searchInputExample} language="html" />
+                                  </div>
+                                  <div>
+                                    <p className="text-gray-600 mb-3">Use computed states to display loading, error, and the collection itself:</p>
+                                    <div className="inline-flex items-center gap-2 text-xs font-medium text-blue-700 bg-blue-50 px-2.5 py-1 rounded-md mb-2">State Rendering</div>
+                                    <CodeBlock code={stateRenderingExample} language="html" />
+                                  </div>
+                                </div>
+                            </div>
+                        </li>
+                    </ol>
                 </div>
             </div>
         </section>

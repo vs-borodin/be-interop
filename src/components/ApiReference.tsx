@@ -1,7 +1,7 @@
 export function ApiReference() {
   return (
     <section className="py-20 px-6 bg-gray-50">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-4xl mx-auto">
         <h2 className="text-4xl font-bold text-gray-900 mb-4 text-center">
           API Reference
         </h2>

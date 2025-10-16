@@ -18,4 +18,10 @@
   code {
     font-family: 'Monaco', 'Courier New', monospace;
   }
+
+  /* Inline code (not inside pre/code blocks): soft pill with subtle border */
+  :not(pre) > code {
+    @apply bg-blue-50 text-blue-700 rounded-md px-1.5 py-0.5 border border-blue-100;
+    font-size: 0.9em;
+  }
 }
