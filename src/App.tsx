@@ -11,7 +11,6 @@ function App() {
     <div className="min-h-screen bg-white">
       <Hero />
       <WhyDataList />
-      <Features />
       <Installation />
       <Examples />
       <ApiReference />
