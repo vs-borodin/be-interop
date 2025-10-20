@@ -150,6 +150,92 @@ users.sort(() => [{ key: 'name', order: 'asc' }]);`;
   readonly sorters: readonly Sorter[];
 }`;
 
+    const installKitCommand = `npm install @mixin-ui/kit`;
+
+    const dataGridComponentTsExample = `import { Component, inject } from '@angular/core';
+import { dataList } from '@mixin-ui/be-interop';
+import { XDataGrid } from '@mixin-ui/kit';
+import { XDataGridConnector } from './x-data-grid-connector.directive';
+
+@Component({
+  selector: 'app-employee-grid',
+  standalone: true,
+  imports: [XDataGrid, XDataGridConnector],
+  templateUrl: './employee-grid.component.html',
+})
+export class EmployeeGridComponent {
+  private readonly employeeService = inject(EmployeeService);
+
+  readonly employees = dataList<Employee>({
+    stream: params => this.employeeService.getEmployees(params),
+  });
+}`;
+
+    const dataGridTemplateExample = `<x-data-grid
+  [x-data-grid-connector]="employees"
+>
+  <table x-table key="id" [data]="employees.items()">
+    <thead x-thead>
+    <tr>
+      <th x-th="lastName">Last Name</th>
+      <th x-th="firstName">First Name</th>
+    </tr>
+    </thead>
+
+    <tbody>
+      @for (employee of employees.items(); track employee.id) {
+        <tr x-tr
+            [data]="employee">
+          <td>
+            {{ employee.lastName }}
+          </td>
+          <td>
+            {{ employee.firstName }}
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</x-data-grid>`;
+
+    const dataListDebugBuiltInExample = `import { Component, inject } from '@angular/core';
+import { dataList } from '@mixin-ui/be-interop';
+import { EmployeeService } from './employee.service';
+
+export interface Employee {
+  readonly id: string;
+  readonly firstName: string;
+  readonly lastName: string;
+}
+
+@Component({
+  selector: 'app-employee-grid',
+  standalone: true,
+  template: '',
+})
+export class EmployeeGridComponent {
+  private readonly employeeService = inject(EmployeeService);
+
+  readonly employees = dataList<Employee>({
+    stream: params => this.employeeService.getEmployees(params),
+    state: {
+      query: {
+        sorters: [{ key: 'lastName', order: 'asc' }],
+        filter: { search: '' },
+      },
+    },
+    debugName: 'Employees',
+  });
+}`;
+
+    const dataListDebugConsoleExample = `DataList [Employees]: Query changed: {"filter":{"search":""},"pagination":{"take":250,"skip":0},"sorters":[{"key":"lastName","order":"asc"}]}
+
+DataList [Employees]: Request successful: {"total":2,"data":[{"id":"1","firstName":"Admin","lastName":"Systemovy"},{"id":"2","firstName":"John","lastName":"Doe"}]}
+
+DataList [Employees]: Query changed: {"filter":{"search":"doe"},"pagination":{"take":250,"skip":0},"sorters":[{"key":"lastName","order":"asc"}]}
+
+DataList [Employees]: Request successful: {"total":1,"data":[{"id":"2","firstName":"John","lastName":"Doe"}]}`;
+
     return (
         <section id="examples" className="py-20 px-6">
             <div className="max-w-4xl mx-auto">
@@ -334,6 +420,97 @@ users.sort(() => [{ key: 'name', order: 'asc' }]);`;
                                     <div className="inline-flex items-center gap-2 text-xs font-medium text-blue-700 bg-blue-50 px-2.5 py-1 rounded-md mb-2">State Rendering</div>
                                     <CodeBlock code={stateRenderingExample} language="html" />
                                   </div>
+                                </div>
+                            </div>
+                        </li>
+
+                        <li className="relative pl-16">
+                            <div className="absolute left-0 top-1.5 flex items-center justify-center w-12 h-12 rounded-full bg-white shadow ring-1 ring-blue-200">
+                                <div className="flex items-center justify-center w-9 h-9 rounded-full bg-blue-600 text-white font-semibold">5</div>
+                            </div>
+                            <div className="group rounded-2xl bg-white p-6 shadow-md hover:shadow-lg transition-shadow">
+                                <div className="flex items-center gap-3 mb-3">
+                                    <div className="p-2 rounded-lg bg-blue-50 text-blue-700">
+                                        <SlidersHorizontal className="w-5 h-5" />
+                                    </div>
+                                    <h3 className="text-xl font-semibold text-gray-900">Step 5. Integration with Data Grid</h3>
+                                </div>
+                                <p className="text-gray-600 mb-5">
+                                    Use a Data Grid to visualize <code>dataList</code> results with built-in sorting, filtering, and pagination that stay in sync with your backend.
+                                </p>
+
+                                <div className="space-y-8">
+                                    <div className="rounded-xl bg-gray-50 p-4">
+                                        <div className="text-sm font-semibold text-gray-900 mb-2">Capabilities</div>
+                                        <ul className="list-disc pl-5 text-gray-600 space-y-1">
+                                            <li>Sorting: multi-column sorters synchronized with <code>dataList.sort(() =&gt; sorters)</code></li>
+                                            <li>Search and filtering: grid query updates <code>dataList.search(query)</code></li>
+                                            <li>Pagination: grid pages map to <code>dataList.paginate(updater)</code></li>
+                                            <li>Reload: grid reload triggers <code>dataList.reload()</code></li>
+                                            <li>Server-driven: grid emits intent; <code>dataList</code> fetches fresh results</li>
+                                            <li>Query-awareness: initial sorters come from <code>dataList.query().sorters</code></li>
+                                        </ul>
+                                    </div>
+
+                                    <div className="rounded-xl bg-gray-50 p-4">
+                                        <div className="text-sm font-semibold text-gray-900 mb-2">Install UI Kit</div>
+                                        <p className="text-gray-600 mb-3">Install the UI package that provides the Data Grid component.</p>
+                                        <CodeBlock code={installKitCommand} language="bash" />
+                                    </div>
+
+                                    <div className="rounded-xl bg-gray-50 p-4">
+                                        <div className="text-sm font-semibold text-gray-900 mb-2">Component (TS)</div>
+                                        <p className="text-gray-600 mb-3">Host the grid and bind your <code>DataListRef</code> as <code>employees</code>. Provide create, update, and open handlers.</p>
+                                        <CodeBlock code={dataGridComponentTsExample} />
+                                    </div>
+
+                                    <div className="rounded-xl bg-gray-50 p-4">
+                                        <div className="text-sm font-semibold text-gray-900 mb-2">Template (HTML)</div>
+                                        <p className="text-gray-600 mb-3">Attach the connector via <code>[x-data-grid-connector]</code>, declare action groups, and render the table.</p>
+                                        <CodeBlock code={dataGridTemplateExample} language="html" />
+                                    </div>
+
+                                    <div className="rounded-xl bg-gray-50 p-4">
+                                        <div className="text-sm font-semibold text-gray-900 mb-2">Minimal checklist</div>
+                                        <ul className="list-disc pl-5 text-gray-600 space-y-1">
+                                            <li>Install: <code>npm install @mixin-ui/kit</code></li>
+                                            <li>Import <code>XDataGrid</code> and your <code>XDataGridConnector</code> in the component</li>
+                                            <li>Bind <code>[x-data-grid-connector]="employees"</code> to connect the grid</li>
+                                            <li>Render table rows from <code>employees.items()</code></li>
+                                            <li>Define columns and optional cell templates as needed</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+
+                        <li className="relative pl-16">
+                            <div className="absolute left-0 top-1.5 flex items-center justify-center w-12 h-12 rounded-full bg-white shadow ring-1 ring-blue-200">
+                                <div className="flex items-center justify-center w-9 h-9 rounded-full bg-blue-600 text-white font-semibold">6</div>
+                            </div>
+                            <div className="group rounded-2xl bg-white p-6 shadow-md hover:shadow-lg transition-shadow">
+                                <div className="flex items-center gap-3 mb-3">
+                                    <div className="p-2 rounded-lg bg-blue-50 text-blue-700">
+                                        <SlidersHorizontal className="w-5 h-5" />
+                                    </div>
+                                    <h3 className="text-xl font-semibold text-gray-900">Step 6. Debug mode</h3>
+                                </div>
+                                <p className="text-gray-600 mb-5">
+                                    Enable console tracing for your <code>DataListRef</code> to inspect queries, requests, and results while you develop. This helps validate sorting, filtering, and search flows in the data grid.
+                                </p>
+
+                                <div className="space-y-8">
+                                    <div className="rounded-xl bg-gray-50 p-4">
+                                        <div className="text-sm font-semibold text-gray-900 mb-2">Enable built-in debug</div>
+                                        <p className="text-gray-600 mb-3">Pass <code>debugName</code> to <code>dataList</code>. The name is used as a prefix for console logs.</p>
+                                        <CodeBlock code={dataListDebugBuiltInExample} />
+                                    </div>
+
+                                    <div className="rounded-xl bg-gray-50 p-4">
+                                        <div className="text-sm font-semibold text-gray-900 mb-2">Sample console output</div>
+                                        <p className="text-gray-600 mb-3">You should see logs similar to the following when sorting and searching employees:</p>
+                                        <CodeBlock code={dataListDebugConsoleExample} />
+                                    </div>
                                 </div>
                             </div>
                         </li>
