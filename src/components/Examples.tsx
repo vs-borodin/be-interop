@@ -1,7 +1,11 @@
 import {CodeBlock} from './CodeBlock';
+import { CopyLinkButton } from './CopyLinkButton';
+import { StepNavigation } from './StepNavigation';
+import { useStepNavigation } from '../hooks/useStepNavigation';
 import { FileCode, ListChecks, SlidersHorizontal } from 'lucide-react';
 
 export function Examples() {
+    const { copyStepLink, setStepRef } = useStepNavigation();
     const serviceExample = `
 import { DataListDto } from '@mixin-ui/be-interop';
 
@@ -163,7 +167,7 @@ import { XDataGridConnector } from './x-data-grid-connector.directive';
   templateUrl: './employee-grid.component.html',
 })
 export class EmployeeGridComponent {
-  private readonly employeeService = inject(EmployeeService);
+  readonly #employeeService = inject(EmployeeService);
 
   readonly employees = dataList<Employee>({
     stream: params => this.employeeService.getEmployees(params),
@@ -222,18 +226,25 @@ DataList [Employees]: Request successful: {"total":1,"data":[{"id":"2","firstNam
 
                 <div className="relative">
                     <div className="absolute left-6 top-0 bottom-0 w-px bg-gradient-to-b from-blue-200/50 via-blue-200/30 to-transparent"></div>
+                    
+                    <div className="mb-8">
+                        <StepNavigation />
+                    </div>
 
                     <ol className="space-y-10">
-                        <li className="relative pl-16">
+                        <li className="relative pl-16" ref={setStepRef(1)}>
                             <div className="absolute left-0 top-1.5 flex items-center justify-center w-12 h-12 rounded-full bg-white shadow ring-1 ring-blue-200">
                                 <div className="flex items-center justify-center w-9 h-9 rounded-full bg-blue-600 text-white font-semibold">1</div>
                             </div>
                             <div className="group rounded-2xl bg-white p-6 shadow-md hover:shadow-lg transition-shadow">
-                                <div className="flex items-center gap-3 mb-3">
-                                    <div className="p-2 rounded-lg bg-blue-50 text-blue-700">
-                                        <FileCode className="w-5 h-5" />
+                                <div className="flex items-center justify-between mb-3">
+                                    <div className="flex items-center gap-3">
+                                        <div className="p-2 rounded-lg bg-blue-50 text-blue-700">
+                                            <FileCode className="w-5 h-5" />
+                                        </div>
+                                        <h3 className="text-xl font-semibold text-gray-900">Step 1. Define a data fetching method in a service</h3>
                                     </div>
-                                    <h3 className="text-xl font-semibold text-gray-900">Step 1. Define a data fetching method in a service</h3>
+                                    <CopyLinkButton stepNumber={1} onCopy={copyStepLink} />
                                 </div>
                                 <p className="text-gray-600 mb-5">
                                     The service must return a properly typed <code>DataListDto&lt;T&gt;</code> from <code>@mixin-ui/be-interop</code>.
@@ -242,16 +253,19 @@ DataList [Employees]: Request successful: {"total":1,"data":[{"id":"2","firstNam
                             </div>
                         </li>
 
-                        <li className="relative pl-16">
+                        <li className="relative pl-16" ref={setStepRef(2)}>
                             <div className="absolute left-0 top-1.5 flex items-center justify-center w-12 h-12 rounded-full bg-white shadow ring-1 ring-blue-200">
                                 <div className="flex items-center justify-center w-9 h-9 rounded-full bg-blue-600 text-white font-semibold">2</div>
                             </div>
                             <div className="group rounded-2xl bg-white p-6 shadow-md hover:shadow-lg transition-shadow">
-                                <div className="flex items-center gap-3 mb-3">
-                                    <div className="p-2 rounded-lg bg-blue-50 text-blue-700">
-                                        <ListChecks className="w-5 h-5" />
+                                <div className="flex items-center justify-between mb-3">
+                                    <div className="flex items-center gap-3">
+                                        <div className="p-2 rounded-lg bg-blue-50 text-blue-700">
+                                            <ListChecks className="w-5 h-5" />
+                                        </div>
+                                        <h3 className="text-xl font-semibold text-gray-900">Step 2. dataList options and initial state</h3>
                                     </div>
-                                    <h3 className="text-xl font-semibold text-gray-900">Step 2. dataList options and initial state</h3>
+                                    <CopyLinkButton stepNumber={2} onCopy={copyStepLink} />
                                 </div>
                                 <div className="space-y-8">
                                     <div className="rounded-xl bg-gray-50 p-4">
@@ -295,16 +309,19 @@ DataList [Employees]: Request successful: {"total":1,"data":[{"id":"2","firstNam
                             </div>
                         </li>
 
-                        <li className="relative pl-16">
+                        <li className="relative pl-16" ref={setStepRef(3)}>
                             <div className="absolute left-0 top-1.5 flex items-center justify-center w-12 h-12 rounded-full bg-white shadow ring-1 ring-blue-200">
                                 <div className="flex items-center justify-center w-9 h-9 rounded-full bg-blue-600 text-white font-semibold">3</div>
                             </div>
                             <div className="group rounded-2xl bg-white p-6 shadow-md hover:shadow-lg transition-shadow">
-                                <div className="flex items-center gap-3 mb-3">
-                                    <div className="p-2 rounded-lg bg-blue-50 text-blue-700">
-                                        <SlidersHorizontal className="w-5 h-5" />
+                                <div className="flex items-center justify-between mb-3">
+                                    <div className="flex items-center gap-3">
+                                        <div className="p-2 rounded-lg bg-blue-50 text-blue-700">
+                                            <SlidersHorizontal className="w-5 h-5" />
+                                        </div>
+                                        <h3 className="text-xl font-semibold text-gray-900">Step 3. Understand the DataList contract, query and updaters</h3>
                                     </div>
-                                    <h3 className="text-xl font-semibold text-gray-900">Step 3. Understand the DataList contract, query and updaters</h3>
+                                    <CopyLinkButton stepNumber={3} onCopy={copyStepLink} />
                                 </div>
                                 <p className="text-gray-600 mb-5">
                                     Calling <code>dataList</code> creates a <code>DataListRef</code> with signals for state and methods to control behavior.
@@ -365,16 +382,19 @@ DataList [Employees]: Request successful: {"total":1,"data":[{"id":"2","firstNam
                         </li>
 
 
-                        <li className="relative pl-16">
+                        <li className="relative pl-16" ref={setStepRef(4)}>
                             <div className="absolute left-0 top-1.5 flex items-center justify-center w-12 h-12 rounded-full bg-white shadow ring-1 ring-blue-200">
                                 <div className="flex items-center justify-center w-9 h-9 rounded-full bg-blue-600 text-white font-semibold">4</div>
                             </div>
                             <div className="group rounded-2xl bg-white p-6 shadow-md hover:shadow-lg transition-shadow">
-                                <div className="flex items-center gap-3 mb-3">
-                                    <div className="p-2 rounded-lg bg-blue-50 text-blue-700">
-                                        <SlidersHorizontal className="w-5 h-5" />
+                                <div className="flex items-center justify-between mb-3">
+                                    <div className="flex items-center gap-3">
+                                        <div className="p-2 rounded-lg bg-blue-50 text-blue-700">
+                                            <SlidersHorizontal className="w-5 h-5" />
+                                        </div>
+                                        <h3 className="text-xl font-semibold text-gray-900">Step 4. Component Integration</h3>
                                     </div>
-                                    <h3 className="text-xl font-semibold text-gray-900">Step 4. Component Integration</h3>
+                                    <CopyLinkButton stepNumber={4} onCopy={copyStepLink} />
                                 </div>
                                 <p className="text-gray-600 mb-5">
                                     Use <code>dataList</code> in a component, render <code>items()</code>, show <code>loading()</code>/<code>error()</code>, and provide search and pagination controls.
@@ -398,16 +418,19 @@ DataList [Employees]: Request successful: {"total":1,"data":[{"id":"2","firstNam
                             </div>
                         </li>
 
-                        <li className="relative pl-16">
+                        <li className="relative pl-16" ref={setStepRef(5)}>
                             <div className="absolute left-0 top-1.5 flex items-center justify-center w-12 h-12 rounded-full bg-white shadow ring-1 ring-blue-200">
                                 <div className="flex items-center justify-center w-9 h-9 rounded-full bg-blue-600 text-white font-semibold">5</div>
                             </div>
                             <div className="group rounded-2xl bg-white p-6 shadow-md hover:shadow-lg transition-shadow">
-                                <div className="flex items-center gap-3 mb-3">
-                                    <div className="p-2 rounded-lg bg-blue-50 text-blue-700">
-                                        <SlidersHorizontal className="w-5 h-5" />
+                                <div className="flex items-center justify-between mb-3">
+                                    <div className="flex items-center gap-3">
+                                        <div className="p-2 rounded-lg bg-blue-50 text-blue-700">
+                                            <SlidersHorizontal className="w-5 h-5" />
+                                        </div>
+                                        <h3 className="text-xl font-semibold text-gray-900">Step 5. Integration with Data Grid</h3>
                                     </div>
-                                    <h3 className="text-xl font-semibold text-gray-900">Step 5. Integration with Data Grid</h3>
+                                    <CopyLinkButton stepNumber={5} onCopy={copyStepLink} />
                                 </div>
                                 <p className="text-gray-600 mb-5">
                                     Use a Data Grid to visualize <code>dataList</code> results with built-in sorting, filtering, and pagination that stay in sync with your backend.
@@ -444,16 +467,19 @@ DataList [Employees]: Request successful: {"total":1,"data":[{"id":"2","firstNam
                             </div>
                         </li>
 
-                        <li className="relative pl-16">
+                        <li className="relative pl-16" ref={setStepRef(6)}>
                             <div className="absolute left-0 top-1.5 flex items-center justify-center w-12 h-12 rounded-full bg-white shadow ring-1 ring-blue-200">
                                 <div className="flex items-center justify-center w-9 h-9 rounded-full bg-blue-600 text-white font-semibold">6</div>
                             </div>
                             <div className="group rounded-2xl bg-white p-6 shadow-md hover:shadow-lg transition-shadow">
-                                <div className="flex items-center gap-3 mb-3">
-                                    <div className="p-2 rounded-lg bg-blue-50 text-blue-700">
-                                        <SlidersHorizontal className="w-5 h-5" />
+                                <div className="flex items-center justify-between mb-3">
+                                    <div className="flex items-center gap-3">
+                                        <div className="p-2 rounded-lg bg-blue-50 text-blue-700">
+                                            <SlidersHorizontal className="w-5 h-5" />
+                                        </div>
+                                        <h3 className="text-xl font-semibold text-gray-900">Step 6. Debug mode</h3>
                                     </div>
-                                    <h3 className="text-xl font-semibold text-gray-900">Step 6. Debug mode</h3>
+                                    <CopyLinkButton stepNumber={6} onCopy={copyStepLink} />
                                 </div>
                                 <p className="text-gray-600 mb-5">
                                     Enable console tracing for your <code>DataListRef</code> to inspect queries, requests, and results while you develop. This helps validate sorting, filtering, and search flows in the data grid.

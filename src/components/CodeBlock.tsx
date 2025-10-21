@@ -50,7 +50,7 @@ export function CodeBlock({ code, language = 'typescript', highlightedLines = []
             {tokens.map((line, i) => {
                 const isHighlighted = highlightedLines.includes(i + 1);
                 const lineProps = getLineProps({ line, key: i });
-                const lineClassName = `${lineProps.className ?? ''} ${isHighlighted ? 'bg-gray-800/60 ring-1 ring-blue-500/40 -mx-6 px-6' : ''}`.trim();
+                const lineClassName = `${lineProps.className ?? ''} ${isHighlighted ? 'bg-gray-700/40 -mx-6 px-6' : ''}`.trim();
                 return (
                     <div key={i} {...lineProps} className={lineClassName}>
                         {line.map((token, key) => (
