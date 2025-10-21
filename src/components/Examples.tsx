@@ -32,10 +32,8 @@ import { UserService } from './user.service';
 
 @Injectable()
 export class UserStore {
-  readonly #userService = inject(UserService);
-
   readonly users = dataList({
-    stream: params => this.#userService.getUsers(params)
+    stream: params => inject(UserService).getUsers(params)
   });
 }`;
 
@@ -56,11 +54,10 @@ export class UserStore {
 import { dataList } from '@mixin-ui/be-interop';
 import { ProductService } from './product.service';
 
+@Component({ ... })
 export class ProductListComponent {
-  readonly #productService = inject(ProductService);
-
   readonly products = dataList({
-    stream: params => this.#productService.getProducts(params),
+    stream: params => inject(ProductService).getProducts(params),
   });
 }`;
 
@@ -94,24 +91,27 @@ export class ProductListComponent {
 }`;
 
     const customStateExample = `// You can override parts of the initial state
-const users = dataList({
-  stream: params => userService.getUsers(params),
+readonly users = dataList({
+  // ...
   state: {
     query: { pagination: { take: 50, skip: 0 } },
     loading: false,
   }
+  // ...
 });`;
 
     const loadingTimeoutExample = `// Prevents loading flicker for fast responses (default: 250ms)
-const users = dataList({
-  stream: params => userService.getUsers(params),
-  loadingTimeout: 300,
+readonly users = dataList({
+  // ...
+  loadingTimeout: 300
+  // ...
 });`;
 
     const searchDebounceExample = `// Debounce for search(query: string) (default: 300ms)
-const users = dataList({
-  stream: params => userService.getUsers(params),
-  searchDebounce: 400,
+readonly users = dataList({
+  // ...
+  searchDebounce: 400
+  // ...
 });`;
 
     const filterShapeExample = `// Filter: key-value pairs you send to backend
@@ -158,18 +158,16 @@ users.sort(() => [{ key: 'name', order: 'asc' }]);`;
 
     const dataGridComponentTsExample = `import { Component, inject } from '@angular/core';
 import { dataList, XDataGridConnector } from '@mixin-ui/be-interop';
-import { XDataGrid } from '@mixin-ui/kit';
+import { XDataGrid, XTable, XThead, XTh, XTr } from '@mixin-ui/kit';
 
 @Component({
   selector: 'app-employee-grid',
-  imports: [XDataGrid, XDataGridConnector],
+  imports: [XDataGrid, XDataGridConnector, XTable, XThead, XTh, XTr],
   templateUrl: './employee-grid.component.html',
 })
 export class EmployeeGridComponent {
-  readonly #employeeService = inject(EmployeeService);
-
   readonly employees = dataList<Employee>({
-    stream: params => this.employeeService.getEmployees(params),
+    stream: params => inject(EmployeeService).getEmployees(params),
   });
 }`;
 
@@ -186,14 +184,9 @@ export class EmployeeGridComponent {
 
     <tbody>
       @for (employee of employees.items(); track employee.id) {
-        <tr x-tr
-            [data]="employee">
-          <td>
-            {{ employee.lastName }}
-          </td>
-          <td>
-            {{ employee.firstName }}
-          </td>
+        <tr x-tr [data]="employee">
+          <td>{{ employee.lastName }}</td>
+          <td>{{ employee.firstName }}</td>
         </tr>
       }
     </tbody>
@@ -235,7 +228,7 @@ DataList [Employees]: Request successful: {"total":1,"data":[{"id":"2","firstNam
                             <div className="absolute left-0 top-1.5 flex items-center justify-center w-12 h-12 rounded-full bg-white shadow ring-1 ring-blue-200">
                                 <div className="flex items-center justify-center w-9 h-9 rounded-full bg-blue-600 text-white font-semibold">1</div>
                             </div>
-                            <div className="group rounded-2xl bg-white p-6 shadow-md hover:shadow-lg transition-shadow">
+                            <div className="group rounded-2xl bg-white p-6 shadow-md border transition-shadow">
                                 <div className="flex items-center justify-between mb-3">
                                     <div className="flex items-center gap-3">
                                         <div className="p-2 rounded-lg bg-blue-50 text-blue-700">
@@ -248,7 +241,7 @@ DataList [Employees]: Request successful: {"total":1,"data":[{"id":"2","firstNam
                                 <p className="text-gray-600 mb-5">
                                     The service must return a properly typed <code>DataListDto&lt;T&gt;</code> from <code>@mixin-ui/be-interop</code>.
                                 </p>
-                                <CodeBlock code={serviceExample} />
+                                <CodeBlock code={serviceExample} highlightedLines={[13]} />
                             </div>
                         </li>
 
@@ -256,7 +249,7 @@ DataList [Employees]: Request successful: {"total":1,"data":[{"id":"2","firstNam
                             <div className="absolute left-0 top-1.5 flex items-center justify-center w-12 h-12 rounded-full bg-white shadow ring-1 ring-blue-200">
                                 <div className="flex items-center justify-center w-9 h-9 rounded-full bg-blue-600 text-white font-semibold">2</div>
                             </div>
-                            <div className="group rounded-2xl bg-white p-6 shadow-md hover:shadow-lg transition-shadow">
+                            <div className="group rounded-2xl bg-white p-6 shadow-md border transition-shadow">
                                 <div className="flex items-center justify-between mb-3">
                                     <div className="flex items-center gap-3">
                                         <div className="p-2 rounded-lg bg-blue-50 text-blue-700">
@@ -272,8 +265,8 @@ DataList [Employees]: Request successful: {"total":1,"data":[{"id":"2","firstNam
                                         <p className="text-gray-600 mb-3">Function that returns an Observable with <code>data</code> and <code>total</code>. It must complete. Typically calls your service method.</p>
                                         <div className="space-y-6">
                                             <div>
-                                                <div className="inline-flex items-center gap-2 text-xs font-medium text-blue-700 bg-blue-50 px-2.5 py-1 rounded-md mb-2">Store usage</div>
-                                                <CodeBlock code={storeExample} maxHeightClass="max-h-80" />
+                                                <div className="inline-flex items-center gap-2 text-xs font-medium text-blue-700 bg-blue-50 px-2.5 py-1 rounded-md mb-2">Stream usage</div>
+                                                <CodeBlock code={storeExample} highlightedLines={[7]} maxHeightClass="max-h-80" />
                                             </div>
                                         </div>
                                     </div>
@@ -288,7 +281,7 @@ DataList [Employees]: Request successful: {"total":1,"data":[{"id":"2","firstNam
                                             </div>
                                             <div>
                                                 <div className="inline-flex items-center gap-2 text-xs font-medium text-blue-700 bg-blue-50 px-2.5 py-1 rounded-md mb-2">Custom initial state</div>
-                                                <CodeBlock code={customStateExample} maxHeightClass="max-h-72" />
+                                                <CodeBlock code={customStateExample} highlightedLines={[4,5,6,7]} maxHeightClass="max-h-72" />
                                             </div>
                                         </div>
                                     </div>
@@ -296,13 +289,13 @@ DataList [Employees]: Request successful: {"total":1,"data":[{"id":"2","firstNam
                                     <div className="rounded-xl bg-gray-50 p-4">
                                         <div className="text-sm font-semibold text-gray-900 mb-2">loadingTimeout (optional)</div>
                                         <p className="text-gray-600 mb-3">Delay before <code>loading</code> becomes true after subscription. Prevents flicker on fast responses. Default: <code>250ms</code>.</p>
-                                        <CodeBlock code={loadingTimeoutExample} />
+                                        <CodeBlock code={loadingTimeoutExample} highlightedLines={[4]} />
                                     </div>
 
                                     <div className="rounded-xl bg-gray-50 p-4">
                                         <div className="text-sm font-semibold text-gray-900 mb-2">searchDebounce (optional)</div>
                                         <p className="text-gray-600 mb-3">Debounce for <code>search(query)</code> method in milliseconds. Default: <code>300ms</code>.</p>
-                                        <CodeBlock code={searchDebounceExample} />
+                                        <CodeBlock code={searchDebounceExample} highlightedLines={[4]} />
                                     </div>
                                 </div>
                             </div>
@@ -312,7 +305,7 @@ DataList [Employees]: Request successful: {"total":1,"data":[{"id":"2","firstNam
                             <div className="absolute left-0 top-1.5 flex items-center justify-center w-12 h-12 rounded-full bg-white shadow ring-1 ring-blue-200">
                                 <div className="flex items-center justify-center w-9 h-9 rounded-full bg-blue-600 text-white font-semibold">3</div>
                             </div>
-                            <div className="group rounded-2xl bg-white p-6 shadow-md hover:shadow-lg transition-shadow">
+                            <div className="group rounded-2xl bg-white p-6 shadow-md border transition-shadow">
                                 <div className="flex items-center justify-between mb-3">
                                     <div className="flex items-center gap-3">
                                         <div className="p-2 rounded-lg bg-blue-50 text-blue-700">
@@ -385,7 +378,7 @@ DataList [Employees]: Request successful: {"total":1,"data":[{"id":"2","firstNam
                             <div className="absolute left-0 top-1.5 flex items-center justify-center w-12 h-12 rounded-full bg-white shadow ring-1 ring-blue-200">
                                 <div className="flex items-center justify-center w-9 h-9 rounded-full bg-blue-600 text-white font-semibold">4</div>
                             </div>
-                            <div className="group rounded-2xl bg-white p-6 shadow-md hover:shadow-lg transition-shadow">
+                            <div className="group rounded-2xl bg-white p-6 shadow-md border transition-shadow">
                                 <div className="flex items-center justify-between mb-3">
                                     <div className="flex items-center gap-3">
                                         <div className="p-2 rounded-lg bg-blue-50 text-blue-700">
@@ -406,12 +399,12 @@ DataList [Employees]: Request successful: {"total":1,"data":[{"id":"2","firstNam
                                   <div>
                                     <p className="text-gray-600 mb-3">Search products declaratively:</p>
                                     <div className="inline-flex items-center gap-2 text-xs font-medium text-blue-700 bg-blue-50 px-2.5 py-1 rounded-md mb-2">Search Input</div>
-                                    <CodeBlock code={searchInputExample} language="html" />
+                                    <CodeBlock code={searchInputExample} highlightedLines={[4]} language="html" />
                                   </div>
                                   <div>
                                     <p className="text-gray-600 mb-3">Use computed states to display loading, error, and the collection itself:</p>
                                     <div className="inline-flex items-center gap-2 text-xs font-medium text-blue-700 bg-blue-50 px-2.5 py-1 rounded-md mb-2">State Rendering</div>
-                                    <CodeBlock code={stateRenderingExample} language="html" />
+                                    <CodeBlock code={stateRenderingExample} highlightedLines={[1,3,6]} language="html" />
                                   </div>
                                 </div>
                             </div>
@@ -421,7 +414,7 @@ DataList [Employees]: Request successful: {"total":1,"data":[{"id":"2","firstNam
                             <div className="absolute left-0 top-1.5 flex items-center justify-center w-12 h-12 rounded-full bg-white shadow ring-1 ring-blue-200">
                                 <div className="flex items-center justify-center w-9 h-9 rounded-full bg-blue-600 text-white font-semibold">5</div>
                             </div>
-                            <div className="group rounded-2xl bg-white p-6 shadow-md hover:shadow-lg transition-shadow">
+                            <div className="group rounded-2xl bg-white p-6 shadow-md border transition-shadow">
                                 <div className="flex items-center justify-between mb-3">
                                     <div className="flex items-center gap-3">
                                         <div className="p-2 rounded-lg bg-blue-50 text-blue-700">
@@ -459,8 +452,8 @@ DataList [Employees]: Request successful: {"total":1,"data":[{"id":"2","firstNam
 
                                     <div className="rounded-xl bg-gray-50 p-4">
                                         <div className="text-sm font-semibold text-gray-900 mb-2">Template (HTML)</div>
-                                        <p className="text-gray-600 mb-3">Attach the connector via <code>[x-data-grid-connector]</code>, declare action groups, and render the table.</p>
-                                        <CodeBlock code={dataGridTemplateExample} language="html" />
+                                        <p className="text-gray-600 mb-3">Attach the connector via <code>[x-data-grid-connector]</code>.</p>
+                                        <CodeBlock code={dataGridTemplateExample} highlightedLines={[2]} language="html" />
                                     </div>
                                 </div>
                             </div>
@@ -470,7 +463,7 @@ DataList [Employees]: Request successful: {"total":1,"data":[{"id":"2","firstNam
                             <div className="absolute left-0 top-1.5 flex items-center justify-center w-12 h-12 rounded-full bg-white shadow ring-1 ring-blue-200">
                                 <div className="flex items-center justify-center w-9 h-9 rounded-full bg-blue-600 text-white font-semibold">6</div>
                             </div>
-                            <div className="group rounded-2xl bg-white p-6 shadow-md hover:shadow-lg transition-shadow">
+                            <div className="group rounded-2xl bg-white p-6 shadow-md transition-shadow">
                                 <div className="flex items-center justify-between mb-3">
                                     <div className="flex items-center gap-3">
                                         <div className="p-2 rounded-lg bg-blue-50 text-blue-700">

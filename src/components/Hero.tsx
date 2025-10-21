@@ -6,7 +6,7 @@ export function Hero() {
       <div className="max-w-6xl mx-auto text-center">
         <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 rounded-full text-blue-700 text-sm font-medium mb-8">
           <Code2 className="w-4 h-4" />
-          <span>CoreTEQ Technology Internal Library</span>
+          <span>CORETEQ Technology Internal Library</span>
         </div>
 
         <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
@@ -29,7 +29,7 @@ export function Hero() {
             href="#examples"
             className="px-8 py-3 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors"
           >
-            View Examples
+            Show Guide
           </a>
         </div>
       </div>
