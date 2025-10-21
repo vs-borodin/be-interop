@@ -157,9 +157,8 @@ users.sort(() => [{ key: 'name', order: 'asc' }]);`;
     const installKitCommand = `npm install @mixin-ui/kit`;
 
     const dataGridComponentTsExample = `import { Component, inject } from '@angular/core';
-import { dataList } from '@mixin-ui/be-interop';
+import { dataList, XDataGridConnector } from '@mixin-ui/be-interop';
 import { XDataGrid } from '@mixin-ui/kit';
-import { XDataGridConnector } from './x-data-grid-connector.directive';
 
 @Component({
   selector: 'app-employee-grid',
