@@ -194,9 +194,9 @@ export class EmployeeGridComponent {
 </x-data-grid>`;
 
     const dataListDebugBuiltInExample = `readonly employees = dataList<Employee>({
-    stream: params => this.employeeService.getEmployees(params),
-    debugName: 'Employees',
-  });`;
+  stream: params => this.#employeeService.getEmployees(params),
+  debugName: 'Employees',
+});`;
 
     const dataListDebugConsoleExample = `DataList [Employees]: Query changed: {"filter":{"search":""},"pagination":{"take":250,"skip":0},"sorters":[{"key":"lastName","order":"asc"}]}
 
@@ -463,7 +463,7 @@ DataList [Employees]: Request successful: {"total":1,"data":[{"id":"2","firstNam
                             <div className="absolute left-0 top-1.5 flex items-center justify-center w-12 h-12 rounded-full bg-white shadow ring-1 ring-blue-200">
                                 <div className="flex items-center justify-center w-9 h-9 rounded-full bg-blue-600 text-white font-semibold">6</div>
                             </div>
-                            <div className="group rounded-2xl bg-white p-6 shadow-md transition-shadow">
+                            <div className="group rounded-2xl bg-white p-6 shadow-md border transition-shadow">
                                 <div className="flex items-center justify-between mb-3">
                                     <div className="flex items-center gap-3">
                                         <div className="p-2 rounded-lg bg-blue-50 text-blue-700">
