@@ -159,7 +159,6 @@ import { XDataGridConnector } from './x-data-grid-connector.directive';
 
 @Component({
   selector: 'app-employee-grid',
-  standalone: true,
   imports: [XDataGrid, XDataGridConnector],
   templateUrl: './employee-grid.component.html',
 })
@@ -198,35 +197,10 @@ export class EmployeeGridComponent {
   </table>
 </x-data-grid>`;
 
-    const dataListDebugBuiltInExample = `import { Component, inject } from '@angular/core';
-import { dataList } from '@mixin-ui/be-interop';
-import { EmployeeService } from './employee.service';
-
-export interface Employee {
-  readonly id: string;
-  readonly firstName: string;
-  readonly lastName: string;
-}
-
-@Component({
-  selector: 'app-employee-grid',
-  standalone: true,
-  template: '',
-})
-export class EmployeeGridComponent {
-  private readonly employeeService = inject(EmployeeService);
-
-  readonly employees = dataList<Employee>({
+    const dataListDebugBuiltInExample = `readonly employees = dataList<Employee>({
     stream: params => this.employeeService.getEmployees(params),
-    state: {
-      query: {
-        sorters: [{ key: 'lastName', order: 'asc' }],
-        filter: { search: '' },
-      },
-    },
     debugName: 'Employees',
-  });
-}`;
+  });`;
 
     const dataListDebugConsoleExample = `DataList [Employees]: Query changed: {"filter":{"search":""},"pagination":{"take":250,"skip":0},"sorters":[{"key":"lastName","order":"asc"}]}
 
@@ -443,18 +417,15 @@ DataList [Employees]: Request successful: {"total":1,"data":[{"id":"2","firstNam
                                     <div className="rounded-xl bg-gray-50 p-4">
                                         <div className="text-sm font-semibold text-gray-900 mb-2">Capabilities</div>
                                         <ul className="list-disc pl-5 text-gray-600 space-y-1">
-                                            <li>Sorting: multi-column sorters synchronized with <code>dataList.sort(() =&gt; sorters)</code></li>
-                                            <li>Search and filtering: grid query updates <code>dataList.search(query)</code></li>
-                                            <li>Pagination: grid pages map to <code>dataList.paginate(updater)</code></li>
-                                            <li>Reload: grid reload triggers <code>dataList.reload()</code></li>
-                                            <li>Server-driven: grid emits intent; <code>dataList</code> fetches fresh results</li>
-                                            <li>Query-awareness: initial sorters come from <code>dataList.query().sorters</code></li>
+                                            <li>Sorting, filtering, and pagination synchronized with backend</li>
+                                            <li>Server-driven data with automatic reload</li>
+                                            <li>Query-aware initial state</li>
                                         </ul>
                                     </div>
 
-                                    <div className="rounded-xl bg-gray-50 p-4">
-                                        <div className="text-sm font-semibold text-gray-900 mb-2">Install UI Kit</div>
-                                        <p className="text-gray-600 mb-3">Install the UI package that provides the Data Grid component.</p>
+                                    <div className="rounded-xl bg-yellow-50 border border-yellow-200 p-4">
+                                        <div className="text-sm font-semibold text-gray-900 mb-2">Install UI Kit <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded ml-2">Optional</span></div>
+                                        <p className="text-gray-600 mb-3">Install the UI package that provides the Data Grid component. Only needed if you don't already have @mixin-ui/kit installed.</p>
                                         <CodeBlock code={installKitCommand} language="bash" />
                                     </div>
 
@@ -468,17 +439,6 @@ DataList [Employees]: Request successful: {"total":1,"data":[{"id":"2","firstNam
                                         <div className="text-sm font-semibold text-gray-900 mb-2">Template (HTML)</div>
                                         <p className="text-gray-600 mb-3">Attach the connector via <code>[x-data-grid-connector]</code>, declare action groups, and render the table.</p>
                                         <CodeBlock code={dataGridTemplateExample} language="html" />
-                                    </div>
-
-                                    <div className="rounded-xl bg-gray-50 p-4">
-                                        <div className="text-sm font-semibold text-gray-900 mb-2">Minimal checklist</div>
-                                        <ul className="list-disc pl-5 text-gray-600 space-y-1">
-                                            <li>Install: <code>npm install @mixin-ui/kit</code></li>
-                                            <li>Import <code>XDataGrid</code> and your <code>XDataGridConnector</code> in the component</li>
-                                            <li>Bind <code>[x-data-grid-connector]="employees"</code> to connect the grid</li>
-                                            <li>Render table rows from <code>employees.items()</code></li>
-                                            <li>Define columns and optional cell templates as needed</li>
-                                        </ul>
                                     </div>
                                 </div>
                             </div>
@@ -503,12 +463,14 @@ DataList [Employees]: Request successful: {"total":1,"data":[{"id":"2","firstNam
                                     <div className="rounded-xl bg-gray-50 p-4">
                                         <div className="text-sm font-semibold text-gray-900 mb-2">Enable built-in debug</div>
                                         <p className="text-gray-600 mb-3">Pass <code>debugName</code> to <code>dataList</code>. The name is used as a prefix for console logs.</p>
-                                        <CodeBlock code={dataListDebugBuiltInExample} />
+                                        <div className="relative">
+                                            <CodeBlock code={dataListDebugBuiltInExample} highlightedLines={[3]} />
+                                        </div>
                                     </div>
 
                                     <div className="rounded-xl bg-gray-50 p-4">
                                         <div className="text-sm font-semibold text-gray-900 mb-2">Sample console output</div>
-                                        <p className="text-gray-600 mb-3">You should see logs similar to the following when sorting and searching employees:</p>
+                                        <p className="text-gray-600 mb-3">You should see logs similar to the following when sorting, searching, filtering etc.:</p>
                                         <CodeBlock code={dataListDebugConsoleExample} />
                                     </div>
                                 </div>

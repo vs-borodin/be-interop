@@ -157,6 +157,15 @@ export function ApiReference() {
                   Debounce time in milliseconds for search() method. Default: 300ms.
                 </p>
               </div>
+
+              <div className="border-l-4 border-purple-500 pl-6">
+                <h4 className="font-mono text-lg text-gray-900 mb-2">
+                  debugName?: string
+                </h4>
+                <p className="text-gray-600">
+                  Enable console logging for debugging. The name appears as a prefix in console logs (e.g., "DataList [Employees]: Query changed").
+                </p>
+              </div>
             </div>
           </div>
 
